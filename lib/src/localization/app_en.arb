@@ -1,0 +1,6 @@
+{
+  "appTitle": "pocket_planner_front",
+  "@appTitle": {
+    "description": "The title of the application"
+  }
+}
