@@ -1,9 +1,13 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pocket_planner_front/src/extract/extract.dart';
 import 'package:pocket_planner_front/src/sign_in_button.dart';
+import 'package:http/http.dart' as http;
 
 import 'settings/settings_controller.dart';
 
@@ -109,9 +113,29 @@ class HomePage extends StatefulWidget {
 }
 
 handleSignIn() async {
-  var gsi = GoogleSignIn(scopes: googleConfig.scopes);
-  var sexo = await gsi.signIn();
-  print(sexo);
+  var gsi = GoogleSignIn(serverClientId: googleConfig.clientId, scopes: googleConfig.scopes);
+
+  await gsi.signIn().then((result) {
+    result?.authentication.then((googleKey) async {
+      print(googleKey.accessToken);
+      print(googleKey.idToken);
+      print(gsi.currentUser);
+
+      var response = await http.post(
+          Uri.parse('https://pocket-planner-api.fly.dev/api/user/transaction'),
+          headers: {
+            'Authorization': 'Bearer ${googleKey.idToken}',
+            'Content-Type': 'application/json; charset=UTF-8'
+          },
+          body: jsonEncode({'value': 35}));
+
+      print(response.body);
+    }).catchError((err) {
+      print('inner error');
+    });
+  }).catchError((err) {
+    print('error occured');
+  });
 }
 
 class GoogleConfig {
