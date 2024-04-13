@@ -1,9 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pocket_planner_front/src/extract/extract.dart';
 import 'package:pocket_planner_front/src/sign_in_button.dart';
 
 import 'settings/settings_controller.dart';
@@ -28,6 +27,8 @@ class MyApp extends StatelessWidget {
       builder: (BuildContext context, Widget? child) {
         return MaterialApp(
           home: const HomePage(),
+
+          routes: {'/extract': (context) => const ExtractPage()},
           // Providing a restorationScopeId allows the Navigator built by the
           // MaterialApp to restore the navigation stack when a user leaves and
           // returns to the app after it has been killed while running in the
@@ -79,9 +80,21 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Sign In'),
+        elevation: 20,
+      ),
       body: Center(
-        child: Center(
-          child: buildSignInButton(onPressed: null),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            buildSignInButton(onPressed: () => handleSignIn()),
+            const SizedBox(height: 15),
+            ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, '/extract'),
+              child: const Text('Extract'),
+            )
+          ],
         ),
       ),
     );
@@ -93,6 +106,12 @@ class HomePage extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => HomePageState();
+}
+
+handleSignIn() async {
+  var gsi = GoogleSignIn(scopes: googleConfig.scopes);
+  var sexo = await gsi.signIn();
+  print(sexo);
 }
 
 class GoogleConfig {
