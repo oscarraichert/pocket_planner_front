@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -63,7 +62,9 @@ class MyApp extends StatelessWidget {
           // Define a light and dark color theme. Then, read the user's
           // preferred ThemeMode (light, dark, or system default) from the
           // SettingsController to display the correct theme.
-          theme: ThemeData(),
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),            
+          ),
           darkTheme: ThemeData.dark(),
           themeMode: settingsController.themeMode,
 
@@ -113,14 +114,11 @@ class HomePage extends StatefulWidget {
 }
 
 handleSignIn() async {
-  var gsi = GoogleSignIn(serverClientId: googleConfig.clientId, scopes: googleConfig.scopes);
+  var gsi = GoogleSignIn(
+      serverClientId: googleConfig.clientId, scopes: googleConfig.scopes);
 
   await gsi.signIn().then((result) {
     result?.authentication.then((googleKey) async {
-      print(googleKey.accessToken);
-      print(googleKey.idToken);
-      print(gsi.currentUser);
-
       var response = await http.post(
           Uri.parse('https://pocket-planner-api.fly.dev/api/user/transaction'),
           headers: {
@@ -131,10 +129,10 @@ handleSignIn() async {
 
       print(response.body);
     }).catchError((err) {
-      print('inner error');
+      print(err);
     });
   }).catchError((err) {
-    print('error occured');
+    print(err);
   });
 }
 
