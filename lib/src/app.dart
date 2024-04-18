@@ -10,6 +10,8 @@ import 'package:http/http.dart' as http;
 
 import 'settings/settings_controller.dart';
 
+import 'dart:developer';
+
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
   const MyApp({
@@ -119,13 +121,16 @@ handleSignIn() async {
 
   await gsi.signIn().then((result) {
     result?.authentication.then((googleKey) async {
+
+      log('${googleKey.idToken}');
+
       var response = await http.post(
           Uri.parse('https://pocket-planner-api.fly.dev/api/user/transaction'),
           headers: {
             'Authorization': 'Bearer ${googleKey.idToken}',
             'Content-Type': 'application/json; charset=UTF-8'
           },
-          body: jsonEncode({'value': 35}));
+          body: jsonEncode({'value': 75}));
 
       print(response.body);
     }).catchError((err) {
