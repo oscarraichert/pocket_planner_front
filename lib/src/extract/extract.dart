@@ -33,7 +33,6 @@ class _ExtractWidgetState extends State<ExtractWidget> {
             AsyncSnapshot<List<ExtractEntryModel>> snapshot) {
           if (snapshot.hasData) {
             return ListView.separated(
-                padding: const EdgeInsets.all(8),
                 itemCount: snapshot.data!.length,
                 itemBuilder: (BuildContext context, int index) {
                   return ExtractEntry(
@@ -43,7 +42,7 @@ class _ExtractWidgetState extends State<ExtractWidget> {
                   );
                 },
                 separatorBuilder: (BuildContext context, int index) =>
-                    const SizedBox(height: 8));
+                    Container());
           } else {
             return Container(
               margin: const EdgeInsets.all(8),
@@ -85,46 +84,68 @@ class ExtractEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 72,
-      color: Theme.of(context).focusColor,
-      child: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(8.0, 8, 8, 0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Service', style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('Date', style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('Value', style: TextStyle(fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Flexible(
-                  child: Container(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                    child: RichText(
-                      overflow: TextOverflow.ellipsis,
-                      text: TextSpan(
-                        text: service,
-                        style: const TextStyle(color: Colors.black),
-                      ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+      child: Container(
+        color: Theme.of(context).focusColor,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+          child: Column(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        const Row(
+                          children: [
+                            Text(
+                              'Service',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: RichText(
+                                overflow: TextOverflow.ellipsis,
+                                text: TextSpan(
+                                  text: service,
+                                  style: const TextStyle(color: Colors.black),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
                     ),
                   ),
-                ),
-                Text(date),
-                Text('\$$value', textAlign: TextAlign.end),
-              ],
-            ),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        const Text('Date',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(date),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        const Text('Value',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('\$$value'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
