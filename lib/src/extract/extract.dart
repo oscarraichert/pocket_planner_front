@@ -85,7 +85,6 @@ class ExtractEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     DateTime inputDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(date);
     var formatedDate = DateFormat('MM/dd/yyyy hh:mm').format(inputDate);
 
@@ -107,7 +106,8 @@ class ExtractEntry extends StatelessWidget {
                           children: [
                             Text(
                               'Service',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                           ],
                         ),
@@ -118,7 +118,8 @@ class ExtractEntry extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 text: TextSpan(
                                   text: service,
-                                  style: const TextStyle(color: Colors.black),
+                                  style: const TextStyle(
+                                      color: Colors.black, fontSize: 16),
                                 ),
                               ),
                             ),
@@ -131,8 +132,12 @@ class ExtractEntry extends StatelessWidget {
                     child: Column(
                       children: [
                         const Text('Date',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text(formatedDate),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                        Text(
+                          formatedDate,
+                          style: const TextStyle(fontSize: 14),
+                        ),
                       ],
                     ),
                   ),
@@ -140,9 +145,15 @@ class ExtractEntry extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        const Text('Value',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('\$$value'),
+                        const Text(
+                          'Value',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        Text(
+                          '\$$value',
+                          style: const TextStyle(fontSize: 16),
+                        ),
                       ],
                     ),
                   ),
