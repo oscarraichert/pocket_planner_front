@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:pocket_planner_front/src/extract/extract_entry.model.dart';
 import 'package:pocket_planner_front/src/services/http_client.service.dart';
 
@@ -36,6 +38,7 @@ class _ExtractWidgetState extends State<ExtractWidget> {
                 itemBuilder: (BuildContext context, int index) {
                   return ExtractEntry(
                     service: snapshot.data!.elementAt(index).description,
+                    date: snapshot.data!.elementAt(index).date,
                     value: snapshot.data!.elementAt(index).value,
                   );
                 },
@@ -43,9 +46,24 @@ class _ExtractWidgetState extends State<ExtractWidget> {
                     const SizedBox(height: 8));
           } else {
             return Container(
-              height: 72,
+              margin: const EdgeInsets.all(8),
+              height: 55,
               color: Theme.of(context).focusColor,
-              child: const Text('No extract entries.'),
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Text(
+                        'No extract entries.',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             );
           }
         },
@@ -55,10 +73,15 @@ class _ExtractWidgetState extends State<ExtractWidget> {
 }
 
 class ExtractEntry extends StatelessWidget {
-  const ExtractEntry({super.key, required this.service, required this.value});
+  const ExtractEntry(
+      {super.key,
+      required this.service,
+      required this.value,
+      required this.date});
 
   final String value;
   final String service;
+  final String date;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +96,7 @@ class ExtractEntry extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Service', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('Date', style: TextStyle(fontWeight: FontWeight.bold)),
                 Text('Value', style: TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
@@ -81,12 +105,22 @@ class ExtractEntry extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(service),
-                Text(
-                  '\$$value',
-                  textAlign: TextAlign.end,
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    child: RichText(
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
+                        text: service,
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ),
                 ),
+                Text(date),
+                Text('\$$value', textAlign: TextAlign.end),
               ],
             ),
           ),
