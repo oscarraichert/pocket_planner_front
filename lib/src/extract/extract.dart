@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 import 'package:pocket_planner_front/src/extract/extract_entry.model.dart';
 import 'package:pocket_planner_front/src/services/http_client.service.dart';
 
@@ -84,6 +85,10 @@ class ExtractEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    DateTime inputDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(date);
+    var formatedDate = DateFormat('MM/dd/yyyy hh:mm').format(inputDate);
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
       child: Container(
@@ -127,7 +132,7 @@ class ExtractEntry extends StatelessWidget {
                       children: [
                         const Text('Date',
                             style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text(date),
+                        Text(formatedDate),
                       ],
                     ),
                   ),
