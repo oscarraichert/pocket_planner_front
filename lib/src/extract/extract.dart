@@ -30,8 +30,7 @@ class _ExtractWidgetState extends State<ExtractWidget> {
       ),
       body: FutureBuilder<List<ExtractEntryModel>>(
         future: entries,
-        builder: (BuildContext context,
-            AsyncSnapshot<List<ExtractEntryModel>> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<List<ExtractEntryModel>> snapshot) {
           if (snapshot.hasData) {
             return ListView.separated(
                 itemCount: snapshot.data!.length,
@@ -42,8 +41,7 @@ class _ExtractWidgetState extends State<ExtractWidget> {
                     value: snapshot.data!.elementAt(index).value,
                   );
                 },
-                separatorBuilder: (BuildContext context, int index) =>
-                    Container());
+                separatorBuilder: (BuildContext context, int index) => Container());
           } else {
             return Container(
               margin: const EdgeInsets.all(8),
@@ -57,8 +55,7 @@ class _ExtractWidgetState extends State<ExtractWidget> {
                     children: [
                       Text(
                         'No extract entries.',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                     ],
                   ),
@@ -73,11 +70,7 @@ class _ExtractWidgetState extends State<ExtractWidget> {
 }
 
 class ExtractEntry extends StatelessWidget {
-  const ExtractEntry(
-      {super.key,
-      required this.service,
-      required this.value,
-      required this.date});
+  const ExtractEntry({super.key, required this.service, required this.value, required this.date});
 
   final String value;
   final String service;
@@ -92,9 +85,7 @@ class ExtractEntry extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
       child: Container(
         decoration: BoxDecoration(
-            border: Border.all(
-              color: Theme.of(context).dividerColor
-            ),
+            border: Border.all(color: Theme.of(context).dividerColor),
             color: Theme.of(context).hoverColor,
             borderRadius: const BorderRadius.all(Radius.circular(20))),
         child: Padding(
@@ -106,8 +97,7 @@ class ExtractEntry extends StatelessWidget {
                 children: [
                   Text(
                     formatedDate,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ],
               ),
@@ -122,9 +112,7 @@ class ExtractEntry extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           TextSpan(
                             text: service,
-                            style: const TextStyle(
-                              fontSize: 20,
-                            ),
+                            style: const TextStyle(fontSize: 20),
                           ),
                         ),
                       ],
@@ -141,8 +129,7 @@ class ExtractEntry extends StatelessWidget {
                         children: [
                           Text(
                             '\$$value',
-                            style: const TextStyle(
-                                fontSize: 22, fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),

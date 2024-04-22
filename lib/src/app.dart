@@ -5,6 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pocket_planner_front/src/extract/extract.dart';
+import 'package:pocket_planner_front/src/services/user.service.dart';
 import 'package:pocket_planner_front/src/sign_in_button.dart';
 import 'package:http/http.dart' as http;
 
@@ -65,7 +66,7 @@ class MyApp extends StatelessWidget {
           // preferred ThemeMode (light, dark, or system default) from the
           // SettingsController to display the correct theme.
           theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),            
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
           ),
           darkTheme: ThemeData.dark(),
           themeMode: settingsController.themeMode,
@@ -121,6 +122,9 @@ handleSignIn() async {
 
   await gsi.signIn().then((result) {
     result?.authentication.then((googleKey) async {
+      if (googleKey.idToken != null) {
+        await UserService.storeAuthToken(googleKey.idToken!);
+      }
 
       log('${googleKey.idToken}');
 
