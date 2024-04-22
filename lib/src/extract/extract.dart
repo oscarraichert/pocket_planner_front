@@ -86,7 +86,7 @@ class ExtractEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     DateTime inputDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(date);
-    var formatedDate = DateFormat('MM/dd/yyyy hh:mm').format(inputDate);
+    var formatedDate = DateFormat('MM/dd/yyyy').format(inputDate);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
@@ -106,8 +106,7 @@ class ExtractEntry extends StatelessWidget {
                           children: [
                             Text(
                               'Service',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                           ],
                         ),
@@ -119,7 +118,9 @@ class ExtractEntry extends StatelessWidget {
                                 text: TextSpan(
                                   text: service,
                                   style: const TextStyle(
-                                      color: Colors.black, fontSize: 16),
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ),
                             ),
