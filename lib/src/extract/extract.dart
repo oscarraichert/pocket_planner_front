@@ -86,77 +86,67 @@ class ExtractEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     DateTime inputDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(date);
-    var formatedDate = DateFormat('MM/dd/yyyy').format(inputDate);
+    var formatedDate = DateFormat('MMMM dd, yyyy').format(inputDate);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
       child: Container(
-        color: Theme.of(context).focusColor,
+        decoration: BoxDecoration(
+            border: Border.all(
+              color: Theme.of(context).dividerColor
+            ),
+            color: Theme.of(context).hoverColor,
+            borderRadius: const BorderRadius.all(Radius.circular(20))),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
           child: Column(
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        const Row(
-                          children: [
-                            Text(
-                              'Service',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: RichText(
-                                overflow: TextOverflow.ellipsis,
-                                text: TextSpan(
-                                  text: service,
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
+                  Text(
+                    formatedDate,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16),
                   ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                   Expanded(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Date',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text(
-                          formatedDate,
-                          style: const TextStyle(fontSize: 14),
+                        Text.rich(
+                          overflow: TextOverflow.ellipsis,
+                          TextSpan(
+                            text: service,
+                            style: const TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Text(
-                          'Value',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                        Text(
-                          '\$$value',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ],
-                    ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Column(
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '\$$value',
+                            style: const TextStyle(
+                                fontSize: 22, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ],
               ),
