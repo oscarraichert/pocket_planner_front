@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -7,7 +5,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pocket_planner_front/src/extract/extract.dart';
 import 'package:pocket_planner_front/src/services/user.service.dart';
 import 'package:pocket_planner_front/src/sign_in_button.dart';
-import 'package:http/http.dart' as http;
 
 import 'settings/settings_controller.dart';
 
@@ -59,8 +56,7 @@ class MyApp extends StatelessWidget {
           //
           // The appTitle is defined in .arb files found in the localization
           // directory.
-          onGenerateTitle: (BuildContext context) =>
-              AppLocalizations.of(context)!.appTitle,
+          onGenerateTitle: (BuildContext context) => AppLocalizations.of(context)!.appTitle,
 
           // Define a light and dark color theme. Then, read the user's
           // preferred ThemeMode (light, dark, or system default) from the
@@ -79,11 +75,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-final googleConfig = GoogleConfig();
-
 class HomePageState extends State<HomePage> {
-  final googleSignIn = GoogleSignIn(
-      scopes: googleConfig.scopes, clientId: googleConfig.clientId);
 
   @override
   Widget build(BuildContext context) {
@@ -117,8 +109,7 @@ class HomePage extends StatefulWidget {
 }
 
 handleSignIn() async {
-  var gsi = GoogleSignIn(
-      serverClientId: googleConfig.clientId, scopes: googleConfig.scopes);
+  var gsi = GoogleSignIn(serverClientId: GoogleConfig.clientId, scopes: GoogleConfig.scopes);
 
   await gsi.signIn().then((result) {
     result?.authentication.then((googleKey) async {
@@ -127,30 +118,17 @@ handleSignIn() async {
       }
 
       log('${googleKey.idToken}');
-
-      var response = await http.post(
-          Uri.parse('https://pocket-planner-api.fly.dev/api/user/transaction'),
-          headers: {
-            'Authorization': 'Bearer ${googleKey.idToken}',
-            'Content-Type': 'application/json; charset=UTF-8'
-          },
-          body: jsonEncode({'value': 75}));
-
-      print(response.body);
     }).catchError((err) {
-      print(err);
+      log(err);
     });
   }).catchError((err) {
-    print(err);
+    log(err);
   });
 }
 
 class GoogleConfig {
-  final String clientId =
-      '824653628296-ahr9jr3aqgr367mul4p359dj4plsl67a.apps.googleusercontent.com';
-  final String iosClientId =
-      '824653628296-5a4hseol33ep0vvo5tg29m39ib4src71.apps.googleusercontent.com';
-  final String androidClientId =
-      '824653628296-g4ij9785h9c1gkbimm5af42o4l7mket3.apps.googleusercontent.com';
-  final List<String> scopes = ['email'];
+  static String clientId = '824653628296-ahr9jr3aqgr367mul4p359dj4plsl67a.apps.googleusercontent.com';
+  static String iosClientId = '824653628296-5a4hseol33ep0vvo5tg29m39ib4src71.apps.googleusercontent.com';
+  static String androidClientId = '824653628296-g4ij9785h9c1gkbimm5af42o4l7mket3.apps.googleusercontent.com';
+  static List<String> scopes = ['email'];
 }
