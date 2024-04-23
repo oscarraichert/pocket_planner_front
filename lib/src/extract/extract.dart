@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:pocket_planner_front/src/extract/extract_entry.model.dart';
 import 'package:pocket_planner_front/src/services/http_client.service.dart';
@@ -31,7 +29,7 @@ class _ExtractWidgetState extends State<ExtractWidget> {
       body: FutureBuilder<List<ExtractEntryModel>>(
         future: entries,
         builder: (BuildContext context, AsyncSnapshot<List<ExtractEntryModel>> snapshot) {
-          if (snapshot.hasData) {
+          if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
             return ListView.separated(
                 itemCount: snapshot.data!.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -42,26 +40,10 @@ class _ExtractWidgetState extends State<ExtractWidget> {
                   );
                 },
                 separatorBuilder: (BuildContext context, int index) => Container());
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            return const MessageBox(message: 'Loading...');
           } else {
-            return Container(
-              margin: const EdgeInsets.all(8),
-              height: 55,
-              color: Theme.of(context).focusColor,
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Text(
-                        'No extract entries.',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
+            return const MessageBox(message: 'No entries found');
           }
         },
       ),
@@ -140,6 +122,47 @@ class ExtractEntry extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class MessageBox extends StatelessWidget {
+  const MessageBox({
+    super.key,
+    required this.message
+  });
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).dividerColor),
+                color: Theme.of(context).hoverColor,
+                borderRadius: const BorderRadius.all(Radius.circular(20))),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text(
+                      message,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
