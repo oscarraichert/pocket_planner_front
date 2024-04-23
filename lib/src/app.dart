@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pocket_planner_front/src/extract/extract.dart';
+import 'package:pocket_planner_front/src/extract/new_extract.dart';
 import 'package:pocket_planner_front/src/services/user.service.dart';
 import 'package:pocket_planner_front/src/sign_in_button.dart';
 
@@ -31,7 +32,10 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           home: const HomePage(),
 
-          routes: {'/extract': (context) => const ExtractWidget()},
+          routes: {
+            '/extract': (context) => const ExtractWidget(),
+            '/new_extract': (context) => const NewExtractWidget(),
+          },
           // Providing a restorationScopeId allows the Navigator built by the
           // MaterialApp to restore the navigation stack when a user leaves and
           // returns to the app after it has been killed while running in the
@@ -62,9 +66,19 @@ class MyApp extends StatelessWidget {
           // preferred ThemeMode (light, dark, or system default) from the
           // SettingsController to display the correct theme.
           theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
+            appBarTheme: const AppBarTheme(color: Color.fromARGB(177, 255, 193, 7)),
+            textTheme: const TextTheme(
+              bodyMedium: TextStyle(fontSize: 20),
+            ),
           ),
-          darkTheme: ThemeData.dark(),
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            appBarTheme: const AppBarTheme(elevation: 10),
+            textTheme: const TextTheme(
+              bodyMedium: TextStyle(fontSize: 20),
+            ),
+          ),
           themeMode: settingsController.themeMode,
 
           // Define a function to handle named routes in order to support
@@ -76,13 +90,11 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePageState extends State<HomePage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sign In'),
-        elevation: 20,
       ),
       body: Center(
         child: Column(

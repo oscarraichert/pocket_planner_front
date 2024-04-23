@@ -24,12 +24,16 @@ class _ExtractWidgetState extends State<ExtractWidget> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Extract'),
-        elevation: 20,
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: (() => Navigator.pushNamed(context, '/new_extract')),
+        icon: const Icon(Icons.add),
+        label: const Text('Add', style: TextStyle(fontSize: 20)),
       ),
       body: FutureBuilder<List<ExtractEntryModel>>(
         future: entries,
         builder: (BuildContext context, AsyncSnapshot<List<ExtractEntryModel>> snapshot) {
-          if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasData && snapshot.connectionState == ConnectionState.done && snapshot.data!.isNotEmpty) {
             return ListView.separated(
                 itemCount: snapshot.data!.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -92,10 +96,7 @@ class ExtractEntry extends StatelessWidget {
                       children: [
                         Text.rich(
                           overflow: TextOverflow.ellipsis,
-                          TextSpan(
-                            text: service,
-                            style: const TextStyle(fontSize: 20),
-                          ),
+                          TextSpan(text: service),
                         ),
                       ],
                     ),
@@ -128,10 +129,7 @@ class ExtractEntry extends StatelessWidget {
 }
 
 class MessageBox extends StatelessWidget {
-  const MessageBox({
-    super.key,
-    required this.message
-  });
+  const MessageBox({super.key, required this.message});
 
   final String message;
 
@@ -153,10 +151,7 @@ class MessageBox extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Text(
-                      message,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                    ),
+                    Text(message),
                   ],
                 ),
               ],
