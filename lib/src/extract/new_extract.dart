@@ -11,6 +11,8 @@ class _NewExtractState extends State<NewExtractWidget> {
   final descriptionController = TextEditingController();
   final valueController = TextEditingController();
 
+  final formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,56 +22,29 @@ class _NewExtractState extends State<NewExtractWidget> {
       body: Padding(
         padding: const EdgeInsets.all(10),
         child: Container(
-          decoration: BoxDecoration(border: Border.all(color: Theme.of(context).dividerColor), borderRadius: const BorderRadius.all(Radius.circular(20))),
+          decoration: BoxDecoration(
+            border: Border.all(color: Theme.of(context).dividerColor),
+            borderRadius: const BorderRadius.all(Radius.circular(20)),
+          ),
           alignment: Alignment.center,
           child: Column(
             children: [
               Form(
+                key: formKey,
                 child: Padding(
                   padding: const EdgeInsets.all(10),
                   child: Column(
                     children: [
-                      const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Text('Description:', style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                      TextFormField(
-                        controller: descriptionController,
-                        maxLength: 35,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
-                          isDense: true,
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Enter a description';
-                          }
-                          return null;
-                        },
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Text('Value:', style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                      TextFormField(
-                        controller: valueController,
-                        maxLength: 35,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
-                          isDense: true,
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Enter a value';
-                          }
-                          return null;
-                        },
-                      ),
+                      extractEntryFormField(35, 'Description', descriptionController),
+                      extractEntryFormField(12, 'Value', valueController),
                       ElevatedButton(
                         child: const Text('Submit'),
                         onPressed: () => {
-                          print(descriptionController.text),
-                          print(valueController.text)
+                          if (formKey.currentState!.validate())
+                            {
+                              print(descriptionController.text),
+                              print(valueController.text),
+                            }
                         },
                       )
                     ],
@@ -80,6 +55,31 @@ class _NewExtractState extends State<NewExtractWidget> {
           ),
         ),
       ),
+    );
+  }
+
+  Column extractEntryFormField(int maxLength, String formLabel, TextEditingController fieldController) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(10),
+          child: Text(formLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        TextFormField(
+          controller: fieldController,
+          maxLength: maxLength,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
+            isDense: true,
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Field is required';
+            }
+            return null;
+          },
+        ),
+      ],
     );
   }
 }
