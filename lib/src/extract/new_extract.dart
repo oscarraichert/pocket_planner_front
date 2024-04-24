@@ -26,8 +26,8 @@ class _NewExtractState extends State<NewExtractWidget> {
             border: Border.all(color: Theme.of(context).dividerColor),
             borderRadius: const BorderRadius.all(Radius.circular(20)),
           ),
-          alignment: Alignment.center,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Form(
                 key: formKey,
@@ -36,16 +36,23 @@ class _NewExtractState extends State<NewExtractWidget> {
                   child: Column(
                     children: [
                       extractEntryFormField(35, 'Description', descriptionController),
-                      extractEntryFormField(12, 'Value', valueController),
-                      ElevatedButton(
-                        child: const Text('Submit'),
-                        onPressed: () => {
-                          if (formKey.currentState!.validate())
-                            {
-                              print(descriptionController.text),
-                              print(valueController.text),
-                            }
-                        },
+                      extractEntryFormField(12, 'Value', valueController, inputType: TextInputType.number),
+                      SizedBox(
+                        height: 50,
+                        width: 200,
+                        child: ElevatedButton(
+                          child: const Text(
+                            'Submit',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          onPressed: () => {
+                            if (formKey.currentState!.validate())
+                              {
+                                print(descriptionController.text),
+                                print(valueController.text),
+                              }
+                          },
+                        ),
                       )
                     ],
                   ),
@@ -58,7 +65,7 @@ class _NewExtractState extends State<NewExtractWidget> {
     );
   }
 
-  Column extractEntryFormField(int maxLength, String formLabel, TextEditingController fieldController) {
+  Column extractEntryFormField(int maxLength, String formLabel, TextEditingController fieldController, {TextInputType? inputType}) {
     return Column(
       children: [
         Padding(
@@ -66,6 +73,7 @@ class _NewExtractState extends State<NewExtractWidget> {
           child: Text(formLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
         ),
         TextFormField(
+          keyboardType: inputType,
           controller: fieldController,
           maxLength: maxLength,
           decoration: const InputDecoration(
