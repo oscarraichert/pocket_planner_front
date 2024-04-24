@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pocket_planner_front/src/extract/extract_entry.model.dart';
-import 'package:pocket_planner_front/src/services/http_client.service.dart';
+import 'package:pocket_planner_front/src/services/extract.service.dart';
 
 class ExtractWidget extends StatefulWidget {
   const ExtractWidget({super.key});
@@ -16,7 +16,7 @@ class _ExtractWidgetState extends State<ExtractWidget> {
   @override
   void initState() {
     super.initState();
-    entries = HttpClientService.getExtract();
+    entries = ExtractService.getExtract();
   }
 
   @override

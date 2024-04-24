@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pocket_planner_front/src/extract/new_extract_entry.model.dart';
+import 'package:pocket_planner_front/src/services/extract.service.dart';
 
 class NewExtractWidget extends StatefulWidget {
   const NewExtractWidget({super.key});
@@ -45,12 +47,11 @@ class _NewExtractState extends State<NewExtractWidget> {
                             'Submit',
                             style: TextStyle(fontSize: 20),
                           ),
-                          onPressed: () => {
-                            if (formKey.currentState!.validate())
-                              {
-                                print(descriptionController.text),
-                                print(valueController.text),
-                              }
+                          onPressed: () {
+                            if (formKey.currentState!.validate()) {
+                              var newEntry = NewExtractEntryModel(descriptionController.text, valueController.text);
+                              ExtractService.insertEntry(newEntry);
+                            }
                           },
                         ),
                       )
