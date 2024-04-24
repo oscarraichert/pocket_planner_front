@@ -3,7 +3,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pocket_planner_front/src/extract/extract.dart';
-import 'package:pocket_planner_front/src/extract/new_extract.dart';
 import 'package:pocket_planner_front/src/services/user.service.dart';
 import 'package:pocket_planner_front/src/sign_in_button.dart';
 
@@ -34,7 +33,6 @@ class MyApp extends StatelessWidget {
 
           routes: {
             '/extract': (context) => const ExtractWidget(),
-            '/new_extract': (context) => const NewExtractWidget(),
           },
           // Providing a restorationScopeId allows the Navigator built by the
           // MaterialApp to restore the navigation stack when a user leaves and

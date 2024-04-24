@@ -47,10 +47,11 @@ class _NewExtractState extends State<NewExtractWidget> {
                             'Submit',
                             style: TextStyle(fontSize: 20),
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             if (formKey.currentState!.validate()) {
                               var newEntry = NewExtractEntryModel(descriptionController.text, valueController.text);
-                              ExtractService.insertEntry(newEntry);
+                              await ExtractService.insertEntry(newEntry);
+                              Navigator.pop(context, true);
                             }
                           },
                         ),

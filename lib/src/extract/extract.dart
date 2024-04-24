@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pocket_planner_front/src/extract/extract_entry.model.dart';
+import 'package:pocket_planner_front/src/extract/new_extract.dart';
 import 'package:pocket_planner_front/src/services/extract.service.dart';
 
 class ExtractWidget extends StatefulWidget {
@@ -20,13 +21,27 @@ class _ExtractWidgetState extends State<ExtractWidget> {
   }
 
   @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    entries = ExtractService.getExtract();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Extract'),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: (() => Navigator.pushNamed(context, '/new_extract')),
+        onPressed: (() async {
+          bool result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NewExtractWidget()),
+          );
+          if (result == true) {
+            setState(() => {});
+          }
+        }),
         icon: const Icon(Icons.add),
         label: const Text('Add', style: TextStyle(fontSize: 20)),
       ),
@@ -34,16 +49,24 @@ class _ExtractWidgetState extends State<ExtractWidget> {
         future: entries,
         builder: (BuildContext context, AsyncSnapshot<List<ExtractEntryModel>> snapshot) {
           if (snapshot.hasData && snapshot.connectionState == ConnectionState.done && snapshot.data!.isNotEmpty) {
-            return ListView.separated(
-                itemCount: snapshot.data!.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ExtractEntry(
-                    service: snapshot.data!.elementAt(index).description,
-                    date: snapshot.data!.elementAt(index).date,
-                    value: snapshot.data!.elementAt(index).value,
-                  );
-                },
-                separatorBuilder: (BuildContext context, int index) => Container());
+            return Column(
+              children: [
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ExtractEntry(
+                        service: snapshot.data!.elementAt(index).description,
+                        date: snapshot.data!.elementAt(index).date,
+                        value: snapshot.data!.elementAt(index).value,
+                      );
+                    },
+                    separatorBuilder: (BuildContext context, int index) => Container(),
+                  ),
+                ),
+                const SizedBox(height: 85),
+              ],
+            );
           } else if (snapshot.connectionState == ConnectionState.waiting) {
             return const MessageBox(message: 'Loading...');
           } else {

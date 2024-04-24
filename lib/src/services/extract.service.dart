@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:pocket_planner_front/src/extract/extract_entry.model.dart';
 import 'package:http/http.dart' as http;
 import 'package:pocket_planner_front/src/extract/new_extract_entry.model.dart';
@@ -20,8 +19,8 @@ class ExtractService {
     return entries;
   }
 
-  static void insertEntry(NewExtractEntryModel newEntry) async {
-    var response = await http.post(
+  static Future<String> insertEntry(NewExtractEntryModel newEntry) async {
+    var result = await http.post(
       Uri.parse('https://pocket-planner-api.fly.dev/api/user/transaction'),
       headers: {
         'Authorization': 'Bearer ${await UserService.getAuthToken()}',
@@ -30,6 +29,6 @@ class ExtractService {
       body: jsonEncode(NewExtractEntryModel.toJson(newEntry)),
     );
 
-    log(response.body);
+    return result.body;
   }
 }
