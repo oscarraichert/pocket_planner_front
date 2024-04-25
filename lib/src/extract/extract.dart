@@ -1,4 +1,8 @@
+import 'dart:developer';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:pocket_planner_front/src/extract/extract_entry.model.dart';
 import 'package:pocket_planner_front/src/extract/new_extract.dart';
@@ -11,6 +15,8 @@ class ExtractWidget extends StatefulWidget {
   State<ExtractWidget> createState() => _ExtractWidgetState();
 }
 
+bool entrySelected = false;
+
 class _ExtractWidgetState extends State<ExtractWidget> {
   late Future<List<ExtractEntryModel>> entries;
 
@@ -18,6 +24,7 @@ class _ExtractWidgetState extends State<ExtractWidget> {
   void initState() {
     super.initState();
     entries = ExtractService.getExtract();
+    entrySelected = false;
   }
 
   @override
@@ -32,18 +39,35 @@ class _ExtractWidgetState extends State<ExtractWidget> {
       appBar: AppBar(
         title: const Text('Extract'),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: (() async {
-          bool result = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const NewExtractWidget()),
-          );
-          if (result == true) {
-            setState(() => {});
-          }
-        }),
-        icon: const Icon(Icons.add),
-        label: const Text('Add', style: TextStyle(fontSize: 20)),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'fabAdd',
+            onPressed: (() async {
+              var result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const NewExtractWidget()),
+              );
+              if (result == true) {
+                setState(() => {});
+              }
+            }),
+            icon: const Icon(Icons.add),
+            label: const Text('Add', style: TextStyle(fontSize: 20)),
+          ),
+          Visibility(
+            visible: entrySelected,
+            child: FloatingActionButton.extended(
+              heroTag: 'fabRemove',
+              onPressed: (() async {
+                log('delete');
+              }),
+              icon: const Icon(Icons.delete),
+              label: const Text('Remove', style: TextStyle(fontSize: 20)),
+            ),
+          ),
+        ],
       ),
       body: FutureBuilder<List<ExtractEntryModel>>(
         future: entries,
@@ -78,7 +102,7 @@ class _ExtractWidgetState extends State<ExtractWidget> {
   }
 }
 
-class ExtractEntry extends StatelessWidget {
+class ExtractEntry extends StatefulWidget {
   const ExtractEntry({super.key, required this.service, required this.value, required this.date});
 
   final String value;
@@ -86,64 +110,75 @@ class ExtractEntry extends StatelessWidget {
   final String date;
 
   @override
+  State<ExtractEntry> createState() => _ExtractEntryState();
+}
+
+class _ExtractEntryState extends State<ExtractEntry> {
+  @override
   Widget build(BuildContext context) {
-    DateTime inputDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(date, true);
+    DateTime inputDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(widget.date, true);
     var formatedDate = DateFormat('MMMM dd, yyyy').format(inputDate);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-      child: Container(
-        decoration: BoxDecoration(
-            border: Border.all(color: Theme.of(context).dividerColor),
-            color: Theme.of(context).hoverColor,
-            borderRadius: const BorderRadius.all(Radius.circular(20))),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-          child: Column(
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    formatedDate,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text.rich(
-                          overflow: TextOverflow.ellipsis,
-                          TextSpan(text: service),
-                        ),
-                      ],
+      child: GestureDetector(
+        onTap: () async {
+          entrySelected = true;
+          log('selecionou');
+        },
+        child: Container(
+          decoration: BoxDecoration(
+              border: Border.all(color: Theme.of(context).dividerColor),
+              color: Theme.of(context).hoverColor,
+              borderRadius: const BorderRadius.all(Radius.circular(20))),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            child: Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      formatedDate,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Column(
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            '\$$value',
-                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                          Text.rich(
+                            overflow: TextOverflow.ellipsis,
+                            TextSpan(text: widget.service),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Column(
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '\$${widget.value}',
+                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

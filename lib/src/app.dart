@@ -127,6 +127,8 @@ handleSignIn() async {
         await AuthService.storeAuthToken(googleKey.idToken!);
       }
 
+      log('${googleKey.accessToken}');
+
       log('${googleKey.idToken}');
     }).catchError((err) {
       log(err);
