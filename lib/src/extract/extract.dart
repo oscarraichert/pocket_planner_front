@@ -87,7 +87,7 @@ class ExtractEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    DateTime inputDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(date);
+    DateTime inputDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(date, true);
     var formatedDate = DateFormat('MMMM dd, yyyy').format(inputDate);
 
     return Padding(

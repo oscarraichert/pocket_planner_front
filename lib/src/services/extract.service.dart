@@ -2,14 +2,14 @@ import 'dart:convert';
 import 'package:pocket_planner_front/src/extract/extract_entry.model.dart';
 import 'package:http/http.dart' as http;
 import 'package:pocket_planner_front/src/extract/new_extract_entry.model.dart';
-import 'package:pocket_planner_front/src/services/user.service.dart';
+import 'package:pocket_planner_front/src/services/auth.service.dart';
 
 class ExtractService {
   static Future<List<ExtractEntryModel>> getExtract() async {
     var response = await http.get(
       Uri.parse('https://pocket-planner-api.fly.dev/api/user/transaction'),
       headers: {
-        'Authorization': 'Bearer ${await UserService.getAuthToken()}',
+        'Authorization': 'Bearer ${await AuthService.getAuthToken()}',
       },
     );
 
@@ -23,7 +23,7 @@ class ExtractService {
     var result = await http.post(
       Uri.parse('https://pocket-planner-api.fly.dev/api/user/transaction'),
       headers: {
-        'Authorization': 'Bearer ${await UserService.getAuthToken()}',
+        'Authorization': 'Bearer ${await AuthService.getAuthToken()}',
         'Content-Type': 'application/json',
       },
       body: jsonEncode(NewExtractEntryModel.toJson(newEntry)),

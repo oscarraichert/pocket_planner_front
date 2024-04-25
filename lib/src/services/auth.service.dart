@@ -1,6 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class UserService {
+class AuthService {
 
   static Future<void> storeAuthToken(String token) async {
     await const FlutterSecureStorage().write(key: 'bearer', value: token);
