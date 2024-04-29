@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pocket_planner_front/src/models/transaction/new_transaction.model.dart';
-import 'package:pocket_planner_front/src/services/transaction.service.dart';
 
 class NewTransactionWidget extends StatefulWidget {
   const NewTransactionWidget({super.key});
@@ -49,9 +48,8 @@ class _NewTransactionState extends State<NewTransactionWidget> {
                           ),
                           onPressed: () async {
                             if (formKey.currentState!.validate()) {
-                              var newEntry = NewTransaction(descriptionController.text, valueController.text);
-                              await TransactionService.insertTransaction(newEntry);
-                              Navigator.pop(context, true);
+                              var newTransaction = NewTransaction(descriptionController.text, valueController.text);
+                              Navigator.pop(context, newTransaction);
                             }
                           },
                         ),

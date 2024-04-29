@@ -16,9 +16,9 @@ class TransactionsProvider with ChangeNotifier {
     return await transactions.then((x) => x.length);
   }
 
-  void add(NewTransaction newEntry) {
-    log('insert');
-    TransactionService.insertTransaction(newEntry);
+  Future<void> add(NewTransaction newEntry) async {
+    log('transactions provider - add');
+    await TransactionService.insertTransaction(newEntry);
     notifyListeners();
   }
 }

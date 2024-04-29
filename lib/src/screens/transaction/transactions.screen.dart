@@ -4,7 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:pocket_planner_front/src/models/transaction/transaction.model.dart';
 import 'package:pocket_planner_front/src/screens/transaction/new_transaction.screen.dart';
 import 'package:pocket_planner_front/src/providers/transactions.provider.dart';
-import 'package:pocket_planner_front/src/services/transaction.service.dart';
+import 'package:pocket_planner_front/src/widgets/message_card.dart';
+import 'package:provider/provider.dart';
 
 class TransactionsWidget extends StatefulWidget {
   const TransactionsWidget({super.key});
@@ -13,27 +14,11 @@ class TransactionsWidget extends StatefulWidget {
   State<TransactionsWidget> createState() => _TransactionsWidgetState();
 }
 
-bool entrySelected = false;
-
 class _TransactionsWidgetState extends State<TransactionsWidget> {
-  late Future<List<Transaction>> transactions;
-  var transactionsProvider = TransactionsProvider();
-
-  @override
-  void initState() {
-    super.initState();
-    transactions = TransactionService.getTransactions();
-    entrySelected = false;
-  }
-
-  @override
-  void setState(VoidCallback fn) {
-    super.setState(fn);
-    transactions = TransactionService.getTransactions();
-  }
-
   @override
   Widget build(BuildContext context) {
+    final transactionsProvider = Provider.of<TransactionsProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Transactions'),
@@ -48,15 +33,16 @@ class _TransactionsWidgetState extends State<TransactionsWidget> {
                 context,
                 MaterialPageRoute(builder: (context) => const NewTransactionWidget()),
               );
-              if (result == true) {
-                setState(() => {});
+              if (result != null) {
+                log('new t pop');
+                transactionsProvider.add(result).then((value) => setState(() {}));
               }
             }),
             icon: const Icon(Icons.add),
             label: const Text('Add', style: TextStyle(fontSize: 20)),
           ),
           Visibility(
-            visible: entrySelected,
+            visible: true,
             child: FloatingActionButton.extended(
               heroTag: 'fabRemove',
               onPressed: (() async {
@@ -68,42 +54,44 @@ class _TransactionsWidgetState extends State<TransactionsWidget> {
           ),
         ],
       ),
-      body: TransactionsBody(transactionsModel: transactionsProvider),
+      body: TransactionsBody(transactionsProvider: transactionsProvider),
     );
   }
 }
 
 class TransactionsBody extends StatelessWidget {
-  const TransactionsBody({super.key, required this.transactionsModel});
+  const TransactionsBody({super.key, required this.transactionsProvider});
 
-  final TransactionsProvider transactionsModel;
+  final TransactionsProvider transactionsProvider;
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Transaction>>(
-      future: transactionsModel.all,
-      builder: (BuildContext context, AsyncSnapshot<List<Transaction>> snapshot) {
-        if (snapshot.hasData && snapshot.connectionState == ConnectionState.done && snapshot.data!.isNotEmpty) {
-          return Column(
-            children: [
-              Expanded(
-                child: ListView.separated(
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return TransactionEntry(transaction: snapshot.data!.elementAt(index));
-                  },
-                  separatorBuilder: (BuildContext context, int index) => Container(),
+    return Consumer<TransactionsProvider>(
+      builder: (BuildContext context, TransactionsProvider value, Widget? child) => FutureBuilder<List<Transaction>>(
+        future: transactionsProvider.all,
+        builder: (BuildContext context, AsyncSnapshot<List<Transaction>> snapshot) {
+          if (snapshot.hasData && snapshot.connectionState == ConnectionState.done && snapshot.data!.isNotEmpty) {
+            return Column(
+              children: [
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return TransactionEntry(transaction: snapshot.data!.elementAt(index));
+                    },
+                    separatorBuilder: (BuildContext context, int index) => Container(),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 85),
-            ],
-          );
-        } else if (snapshot.connectionState == ConnectionState.waiting) {
-          return const MessageCard(message: 'Loading...');
-        } else {
-          return const MessageCard(message: 'No transactions found');
-        }
-      },
+                const SizedBox(height: 85),
+              ],
+            );
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            return const MessageCard(message: 'Loading...');
+          } else {
+            return const MessageCard(message: 'No transactions found');
+          }
+        },
+      ),
     );
   }
 }
@@ -122,7 +110,6 @@ class TransactionEntry extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
       child: GestureDetector(
         onTap: () async {
-          entrySelected = true;
           log('${transaction.id}');
         },
         child: Container(
@@ -180,41 +167,6 @@ class TransactionEntry extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class MessageCard extends StatelessWidget {
-  const MessageCard({super.key, required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-                border: Border.all(color: Theme.of(context).dividerColor),
-                color: Theme.of(context).hoverColor,
-                borderRadius: const BorderRadius.all(Radius.circular(20))),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Text(message),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
