@@ -1,43 +1,42 @@
 import 'dart:developer';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:pocket_planner_front/src/extract/extract_entry.model.dart';
-import 'package:pocket_planner_front/src/extract/new_extract.dart';
-import 'package:pocket_planner_front/src/services/extract.service.dart';
+import 'package:pocket_planner_front/src/models/transaction/transaction.model.dart';
+import 'package:pocket_planner_front/src/screens/transaction/new_transaction.screen.dart';
+import 'package:pocket_planner_front/src/providers/transactions.provider.dart';
+import 'package:pocket_planner_front/src/services/transaction.service.dart';
 
-class ExtractWidget extends StatefulWidget {
-  const ExtractWidget({super.key});
+class TransactionsWidget extends StatefulWidget {
+  const TransactionsWidget({super.key});
 
   @override
-  State<ExtractWidget> createState() => _ExtractWidgetState();
+  State<TransactionsWidget> createState() => _TransactionsWidgetState();
 }
 
 bool entrySelected = false;
 
-class _ExtractWidgetState extends State<ExtractWidget> {
-  late Future<List<ExtractEntryModel>> entries;
+class _TransactionsWidgetState extends State<TransactionsWidget> {
+  late Future<List<Transaction>> transactions;
+  var transactionsProvider = TransactionsProvider();
 
   @override
   void initState() {
     super.initState();
-    entries = ExtractService.getExtract();
+    transactions = TransactionService.getTransactions();
     entrySelected = false;
   }
 
   @override
   void setState(VoidCallback fn) {
     super.setState(fn);
-    entries = ExtractService.getExtract();
+    transactions = TransactionService.getTransactions();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Extract'),
+        title: const Text('Transactions'),
       ),
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -47,7 +46,7 @@ class _ExtractWidgetState extends State<ExtractWidget> {
             onPressed: (() async {
               var result = await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const NewExtractWidget()),
+                MaterialPageRoute(builder: (context) => const NewTransactionWidget()),
               );
               if (result == true) {
                 setState(() => {});
@@ -69,54 +68,54 @@ class _ExtractWidgetState extends State<ExtractWidget> {
           ),
         ],
       ),
-      body: FutureBuilder<List<ExtractEntryModel>>(
-        future: entries,
-        builder: (BuildContext context, AsyncSnapshot<List<ExtractEntryModel>> snapshot) {
-          if (snapshot.hasData && snapshot.connectionState == ConnectionState.done && snapshot.data!.isNotEmpty) {
-            return Column(
-              children: [
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return ExtractEntry(
-                        service: snapshot.data!.elementAt(index).description,
-                        date: snapshot.data!.elementAt(index).date,
-                        value: snapshot.data!.elementAt(index).value,
-                      );
-                    },
-                    separatorBuilder: (BuildContext context, int index) => Container(),
-                  ),
-                ),
-                const SizedBox(height: 85),
-              ],
-            );
-          } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return const MessageBox(message: 'Loading...');
-          } else {
-            return const MessageBox(message: 'No entries found');
-          }
-        },
-      ),
+      body: TransactionsBody(transactionsModel: transactionsProvider),
     );
   }
 }
 
-class ExtractEntry extends StatefulWidget {
-  const ExtractEntry({super.key, required this.service, required this.value, required this.date});
+class TransactionsBody extends StatelessWidget {
+  const TransactionsBody({super.key, required this.transactionsModel});
 
-  final String value;
-  final String service;
-  final String date;
+  final TransactionsProvider transactionsModel;
 
-  @override
-  State<ExtractEntry> createState() => _ExtractEntryState();
-}
-
-class _ExtractEntryState extends State<ExtractEntry> {
   @override
   Widget build(BuildContext context) {
-    DateTime inputDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(widget.date, true);
+    return FutureBuilder<List<Transaction>>(
+      future: transactionsModel.all,
+      builder: (BuildContext context, AsyncSnapshot<List<Transaction>> snapshot) {
+        if (snapshot.hasData && snapshot.connectionState == ConnectionState.done && snapshot.data!.isNotEmpty) {
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.separated(
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return TransactionEntry(transaction: snapshot.data!.elementAt(index));
+                  },
+                  separatorBuilder: (BuildContext context, int index) => Container(),
+                ),
+              ),
+              const SizedBox(height: 85),
+            ],
+          );
+        } else if (snapshot.connectionState == ConnectionState.waiting) {
+          return const MessageCard(message: 'Loading...');
+        } else {
+          return const MessageCard(message: 'No transactions found');
+        }
+      },
+    );
+  }
+}
+
+class TransactionEntry extends StatelessWidget {
+  const TransactionEntry({super.key, required this.transaction});
+
+  final Transaction transaction;
+
+  @override
+  Widget build(BuildContext context) {
+    DateTime inputDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(transaction.date, true);
     var formatedDate = DateFormat('MMMM dd, yyyy').format(inputDate);
 
     return Padding(
@@ -124,7 +123,7 @@ class _ExtractEntryState extends State<ExtractEntry> {
       child: GestureDetector(
         onTap: () async {
           entrySelected = true;
-          log('selecionou');
+          log('${transaction.id}');
         },
         child: Container(
           decoration: BoxDecoration(
@@ -153,7 +152,7 @@ class _ExtractEntryState extends State<ExtractEntry> {
                         children: [
                           Text.rich(
                             overflow: TextOverflow.ellipsis,
-                            TextSpan(text: widget.service),
+                            TextSpan(text: transaction.description),
                           ),
                         ],
                       ),
@@ -168,7 +167,7 @@ class _ExtractEntryState extends State<ExtractEntry> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              '\$${widget.value}',
+                              '\$${transaction.value}',
                               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -186,8 +185,8 @@ class _ExtractEntryState extends State<ExtractEntry> {
   }
 }
 
-class MessageBox extends StatelessWidget {
-  const MessageBox({super.key, required this.message});
+class MessageCard extends StatelessWidget {
+  const MessageCard({super.key, required this.message});
 
   final String message;
 

@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'package:pocket_planner_front/src/extract/extract_entry.model.dart';
+import 'package:pocket_planner_front/src/models/transaction/transaction.model.dart';
 import 'package:http/http.dart' as http;
-import 'package:pocket_planner_front/src/extract/new_extract_entry.model.dart';
+import 'package:pocket_planner_front/src/models/transaction/new_transaction.model.dart';
 import 'package:pocket_planner_front/src/services/auth.service.dart';
 
-class ExtractService {
-  static Future<List<ExtractEntryModel>> getExtract() async {
+class TransactionService {
+  static Future<List<Transaction>> getTransactions() async {
     var response = await http.get(
       Uri.parse('https://pocket-planner-api.fly.dev/api/user/transaction'),
       headers: {
@@ -14,19 +14,19 @@ class ExtractService {
     );
 
     var entriesJson = jsonDecode(response.body) as List<dynamic>;
-    var entries = entriesJson.map((e) => ExtractEntryModel.fromJson(e)).toList();
+    var entries = entriesJson.map((e) => Transaction.fromJson(e)).toList();
 
     return entries;
   }
 
-  static Future<String> insertEntry(NewExtractEntryModel newEntry) async {
+  static Future<String> insertTransaction(NewTransaction newTransaction) async {
     var result = await http.post(
       Uri.parse('https://pocket-planner-api.fly.dev/api/user/transaction'),
       headers: {
         'Authorization': 'Bearer ${await AuthService.getAuthToken()}',
         'Content-Type': 'application/json',
       },
-      body: jsonEncode(NewExtractEntryModel.toJson(newEntry)),
+      body: jsonEncode(NewTransaction.toJson(newTransaction)),
     );
 
     return result.body;

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:pocket_planner_front/src/extract/new_extract_entry.model.dart';
-import 'package:pocket_planner_front/src/services/extract.service.dart';
+import 'package:pocket_planner_front/src/models/transaction/new_transaction.model.dart';
+import 'package:pocket_planner_front/src/services/transaction.service.dart';
 
-class NewExtractWidget extends StatefulWidget {
-  const NewExtractWidget({super.key});
+class NewTransactionWidget extends StatefulWidget {
+  const NewTransactionWidget({super.key});
 
   @override
-  State<NewExtractWidget> createState() => _NewExtractState();
+  State<NewTransactionWidget> createState() => _NewTransactionState();
 }
 
-class _NewExtractState extends State<NewExtractWidget> {
+class _NewTransactionState extends State<NewTransactionWidget> {
   final descriptionController = TextEditingController();
   final valueController = TextEditingController();
 
@@ -19,7 +19,7 @@ class _NewExtractState extends State<NewExtractWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New Extract Entry'),
+        title: const Text('New Transaction'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),
@@ -37,8 +37,8 @@ class _NewExtractState extends State<NewExtractWidget> {
                   padding: const EdgeInsets.all(10),
                   child: Column(
                     children: [
-                      extractEntryFormField(35, 'Description', descriptionController),
-                      extractEntryFormField(12, 'Value', valueController, inputType: TextInputType.number),
+                      transactionFormField(35, 'Description', descriptionController),
+                      transactionFormField(12, 'Value', valueController, inputType: TextInputType.number),
                       SizedBox(
                         height: 50,
                         width: 200,
@@ -49,8 +49,8 @@ class _NewExtractState extends State<NewExtractWidget> {
                           ),
                           onPressed: () async {
                             if (formKey.currentState!.validate()) {
-                              var newEntry = NewExtractEntryModel(descriptionController.text, valueController.text);
-                              await ExtractService.insertEntry(newEntry);
+                              var newEntry = NewTransaction(descriptionController.text, valueController.text);
+                              await TransactionService.insertTransaction(newEntry);
                               Navigator.pop(context, true);
                             }
                           },
@@ -67,7 +67,7 @@ class _NewExtractState extends State<NewExtractWidget> {
     );
   }
 
-  Column extractEntryFormField(int maxLength, String formLabel, TextEditingController fieldController, {TextInputType? inputType}) {
+  Column transactionFormField(int maxLength, String formLabel, TextEditingController fieldController, {TextInputType? inputType}) {
     return Column(
       children: [
         Padding(
