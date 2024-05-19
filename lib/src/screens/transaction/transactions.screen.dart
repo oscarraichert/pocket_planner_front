@@ -1,11 +1,11 @@
 import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pocket_planner_front/src/models/transaction/transaction.model.dart';
 import 'package:pocket_planner_front/src/screens/transaction/new_transaction.screen.dart';
-import 'package:pocket_planner_front/src/providers/transactions.provider.dart';
+import 'package:pocket_planner_front/src/services/transaction.service.dart';
 import 'package:pocket_planner_front/src/widgets/message_card.dart';
-import 'package:provider/provider.dart';
 
 class TransactionsWidget extends StatefulWidget {
   const TransactionsWidget({super.key});
@@ -15,10 +15,15 @@ class TransactionsWidget extends StatefulWidget {
 }
 
 class _TransactionsWidgetState extends State<TransactionsWidget> {
+  var selectedTransactionId = '';
+
+  @override
+  setState(VoidCallback fn) {
+    super.setState(fn);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final transactionsProvider = Provider.of<TransactionsProvider>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Transactions'),
@@ -34,8 +39,9 @@ class _TransactionsWidgetState extends State<TransactionsWidget> {
                 MaterialPageRoute(builder: (context) => const NewTransactionWidget()),
               );
               if (result != null) {
-                log('new t pop');
-                transactionsProvider.add(result).then((value) => setState(() {}));
+                await TransactionService.insertTransaction(result).then(
+                  (_) => setState(() => ()),
+                );
               }
             }),
             icon: const Icon(Icons.add),
@@ -45,126 +51,142 @@ class _TransactionsWidgetState extends State<TransactionsWidget> {
             visible: true,
             child: FloatingActionButton.extended(
               heroTag: 'fabRemove',
-              onPressed: (() async {
-                log('delete');
-              }),
+              onPressed: (() {}),
               icon: const Icon(Icons.delete),
               label: const Text('Remove', style: TextStyle(fontSize: 20)),
             ),
           ),
         ],
       ),
-      body: TransactionsBody(transactionsProvider: transactionsProvider),
-    );
-  }
-}
-
-class TransactionsBody extends StatelessWidget {
-  const TransactionsBody({super.key, required this.transactionsProvider});
-
-  final TransactionsProvider transactionsProvider;
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<TransactionsProvider>(
-      builder: (BuildContext context, TransactionsProvider value, Widget? child) => FutureBuilder<List<Transaction>>(
-        future: transactionsProvider.all,
+      body: FutureBuilder(
+        future: TransactionService.getTransactions(),
         builder: (BuildContext context, AsyncSnapshot<List<Transaction>> snapshot) {
-          if (snapshot.hasData && snapshot.connectionState == ConnectionState.done && snapshot.data!.isNotEmpty) {
+          if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
             return Column(
               children: [
                 Expanded(
-                  child: ListView.separated(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return TransactionEntry(transaction: snapshot.data!.elementAt(index));
-                    },
-                    separatorBuilder: (BuildContext context, int index) => Container(),
-                  ),
+                  child: TransactionList(snapshot: snapshot),
                 ),
                 const SizedBox(height: 85),
               ],
             );
-          } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return const MessageCard(message: 'Loading...');
-          } else {
-            return const MessageCard(message: 'No transactions found');
           }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const MessageCard(message: 'Loading...');
+          }
+          return const MessageCard(message: 'No Transactions Found!');
         },
       ),
     );
   }
 }
 
-class TransactionEntry extends StatelessWidget {
-  const TransactionEntry({super.key, required this.transaction});
+class TransactionList extends StatefulWidget {
+  const TransactionList({
+    super.key,
+    required this.snapshot,
+  });
 
-  final Transaction transaction;
+  final AsyncSnapshot<List<Transaction>> snapshot;
+
+  @override
+  State<TransactionList> createState() => _TransactionListState();
+}
+
+class _TransactionListState extends State<TransactionList> {
+  var selectedTransaction = '';
 
   @override
   Widget build(BuildContext context) {
-    DateTime inputDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(transaction.date, true);
+    log(selectedTransaction);
+
+    return ListView.separated(
+      itemCount: widget.snapshot.data!.length,
+      itemBuilder: (BuildContext context, int index) {
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              selectedTransaction = widget.snapshot.data!.elementAt(index).id.values.first;
+            });
+          },
+          child: TransactionEntry(transaction: widget.snapshot.data!.elementAt(index), selectedTransaction: selectedTransaction),
+        );
+      },
+      separatorBuilder: (BuildContext context, int index) => Container(),
+    );
+  }
+}
+
+class TransactionEntry extends StatefulWidget {
+  const TransactionEntry({super.key, required this.transaction, required this.selectedTransaction});
+
+  final Transaction transaction;
+  final String selectedTransaction;
+
+  @override
+  State<TransactionEntry> createState() => _TransactionEntryState();
+}
+
+class _TransactionEntryState extends State<TransactionEntry> {
+  @override
+  Widget build(BuildContext context) {
+    DateTime inputDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(widget.transaction.date, true);
     var formatedDate = DateFormat('MMMM dd, yyyy').format(inputDate);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-      child: GestureDetector(
-        onTap: () async {
-          log('${transaction.id}');
-        },
-        child: Container(
-          decoration: BoxDecoration(
-              border: Border.all(color: Theme.of(context).dividerColor),
-              color: Theme.of(context).hoverColor,
-              borderRadius: const BorderRadius.all(Radius.circular(20))),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-            child: Column(
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      formatedDate,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text.rich(
-                            overflow: TextOverflow.ellipsis,
-                            TextSpan(text: transaction.description),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Column(
+      child: Container(
+        decoration: BoxDecoration(
+            border: Border.all(color: Theme.of(context).dividerColor),
+            color: widget.selectedTransaction == widget.transaction.id.values.first ? Theme.of(context).focusColor : Theme.of(context).hoverColor,
+            borderRadius: const BorderRadius.all(Radius.circular(20))),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+          child: Column(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    formatedDate,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '\$${transaction.value}',
-                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                            ),
-                          ],
+                        Text.rich(
+                          overflow: TextOverflow.ellipsis,
+                          TextSpan(text: widget.transaction.description),
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Column(
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '\$${widget.transaction.value}',
+                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),

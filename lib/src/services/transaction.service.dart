@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:pocket_planner_front/src/models/transaction/transaction.model.dart';
 import 'package:http/http.dart' as http;
 import 'package:pocket_planner_front/src/models/transaction/new_transaction.model.dart';
@@ -16,8 +15,6 @@ class TransactionService {
 
     var entriesJson = jsonDecode(response.body) as List<dynamic>;
     var entries = entriesJson.map((e) => Transaction.fromJson(e)).toList();
-
-    log('get transactions');
 
     return entries;
   }

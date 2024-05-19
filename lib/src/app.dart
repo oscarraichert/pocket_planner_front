@@ -3,10 +3,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pocket_planner_front/src/screens/transaction/transactions.screen.dart';
-import 'package:pocket_planner_front/src/providers/transactions.provider.dart';
 import 'package:pocket_planner_front/src/services/auth.service.dart';
 import 'package:pocket_planner_front/src/sign_in_button.dart';
-import 'package:provider/provider.dart';
 
 import 'settings/settings_controller.dart';
 
@@ -29,7 +27,7 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           home: const HomePage(),
           routes: {
-            '/transactions': (context) => ChangeNotifierProvider(create: (BuildContext context) => TransactionsProvider(), child: const TransactionsWidget()),
+            '/transactions': (context) => const TransactionsWidget(),
           },
           restorationScopeId: 'app',
           localizationsDelegates: const [
