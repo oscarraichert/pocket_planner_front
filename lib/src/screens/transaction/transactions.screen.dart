@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pocket_planner_front/src/models/transaction/transaction.model.dart';
@@ -51,7 +49,11 @@ class _TransactionsWidgetState extends State<TransactionsWidget> {
             visible: true,
             child: FloatingActionButton.extended(
               heroTag: 'fabRemove',
-              onPressed: (() {log(_selectedTransaction);}),
+              onPressed: (() async {
+                await TransactionService.deleteTransaction(_selectedTransaction).then(
+                  (_) => setState(() => ()),
+                );
+              }),
               icon: const Icon(Icons.delete),
               label: const Text('Remove', style: TextStyle(fontSize: 20)),
             ),
@@ -81,6 +83,8 @@ class _TransactionsWidgetState extends State<TransactionsWidget> {
   }
 }
 
+typedef SelectedCallback = void Function(String val);
+
 class TransactionList extends StatefulWidget {
   const TransactionList({
     super.key,
@@ -94,8 +98,6 @@ class TransactionList extends StatefulWidget {
   @override
   State<TransactionList> createState() => _TransactionListState();
 }
-
-typedef SelectedCallback = void Function(String val);
 
 class _TransactionListState extends State<TransactionList> {
   String selectedTransaction = '';
@@ -120,20 +122,15 @@ class _TransactionListState extends State<TransactionList> {
   }
 }
 
-class TransactionEntry extends StatefulWidget {
+class TransactionEntry extends StatelessWidget {
   const TransactionEntry({super.key, required this.transaction, required this.selectedTransaction});
 
   final Transaction transaction;
   final String selectedTransaction;
 
   @override
-  State<TransactionEntry> createState() => _TransactionEntryState();
-}
-
-class _TransactionEntryState extends State<TransactionEntry> {
-  @override
   Widget build(BuildContext context) {
-    DateTime inputDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(widget.transaction.date, true);
+    DateTime inputDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(transaction.date, true);
     var formatedDate = DateFormat('MMMM dd, yyyy').format(inputDate);
 
     return Padding(
@@ -141,7 +138,7 @@ class _TransactionEntryState extends State<TransactionEntry> {
       child: Container(
         decoration: BoxDecoration(
             border: Border.all(color: Theme.of(context).dividerColor),
-            color: widget.selectedTransaction == widget.transaction.id.values.first ? Theme.of(context).focusColor : Theme.of(context).hoverColor,
+            color: selectedTransaction == transaction.id.values.first ? Theme.of(context).focusColor : Theme.of(context).hoverColor,
             borderRadius: const BorderRadius.all(Radius.circular(20))),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
@@ -165,7 +162,7 @@ class _TransactionEntryState extends State<TransactionEntry> {
                       children: [
                         Text.rich(
                           overflow: TextOverflow.ellipsis,
-                          TextSpan(text: widget.transaction.description),
+                          TextSpan(text: transaction.description),
                         ),
                       ],
                     ),
@@ -180,7 +177,7 @@ class _TransactionEntryState extends State<TransactionEntry> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            '\$${widget.transaction.value}',
+                            '\$${transaction.value}',
                             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                           ),
                         ],

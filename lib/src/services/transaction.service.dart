@@ -27,8 +27,18 @@ class TransactionService {
         'Content-Type': 'application/json',
       },
       body: jsonEncode(NewTransaction.toJson(newTransaction)),
-    );    
+    );
 
     return result.body;
+  }
+
+  static Future<void> deleteTransaction(String id) async {
+    await http.delete(
+      Uri.parse('https://pocket-planner-api.fly.dev/api/user/transaction/$id'),
+      headers: {
+        'Authorization': 'Bearer ${await AuthService.getAuthToken()}',
+        'Content-Type': 'application/json',
+      },
+    );    
   }
 }
