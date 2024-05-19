@@ -15,7 +15,7 @@ class TransactionsWidget extends StatefulWidget {
 }
 
 class _TransactionsWidgetState extends State<TransactionsWidget> {
-  var selectedTransactionId = '';
+  String _selectedTransaction = '';
 
   @override
   setState(VoidCallback fn) {
@@ -51,7 +51,7 @@ class _TransactionsWidgetState extends State<TransactionsWidget> {
             visible: true,
             child: FloatingActionButton.extended(
               heroTag: 'fabRemove',
-              onPressed: (() {}),
+              onPressed: (() {log(_selectedTransaction);}),
               icon: const Icon(Icons.delete),
               label: const Text('Remove', style: TextStyle(fontSize: 20)),
             ),
@@ -65,7 +65,7 @@ class _TransactionsWidgetState extends State<TransactionsWidget> {
             return Column(
               children: [
                 Expanded(
-                  child: TransactionList(snapshot: snapshot),
+                  child: TransactionList(snapshot: snapshot, callback: (val) => _selectedTransaction = val),
                 ),
                 const SizedBox(height: 85),
               ],
@@ -85,27 +85,30 @@ class TransactionList extends StatefulWidget {
   const TransactionList({
     super.key,
     required this.snapshot,
+    required this.callback,
   });
 
+  final void Function(String val) callback;
   final AsyncSnapshot<List<Transaction>> snapshot;
 
   @override
   State<TransactionList> createState() => _TransactionListState();
 }
 
+typedef SelectedCallback = void Function(String val);
+
 class _TransactionListState extends State<TransactionList> {
-  var selectedTransaction = '';
+  String selectedTransaction = '';
 
   @override
   Widget build(BuildContext context) {
-    log(selectedTransaction);
-
     return ListView.separated(
       itemCount: widget.snapshot.data!.length,
       itemBuilder: (BuildContext context, int index) {
         return GestureDetector(
           onTap: () {
             setState(() {
+              widget.callback(widget.snapshot.data!.elementAt(index).id.values.first);
               selectedTransaction = widget.snapshot.data!.elementAt(index).id.values.first;
             });
           },
